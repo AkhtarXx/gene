@@ -1,0 +1,64 @@
+{
+  "expo": {
+    "name": "OpenClaw Mobile",
+    "slug": "openclaw-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "openclaw",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.openclaw.mobile",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Used by the agent to answer location-based requests.",
+        "NSCalendarsFullAccessUsageDescription": "Used by the agent to read/create calendar events you request.",
+        "NSContactsUsageDescription": "Used by the agent to look up contacts you ask about.",
+        "NSHealthShareUsageDescription": "Used by the agent to read health data you request.",
+        "NSHealthUpdateUsageDescription": "Used by the agent to write health data you request.",
+        "NSBluetoothAlwaysUsageDescription": "Used by the agent for Bluetooth scans you request.",
+        "LSApplicationQueriesSchemes": ["maps", "tel", "mailto"]
+      }
+    },
+    "android": {
+      "package": "com.openclaw.mobile",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "READ_CALENDAR",
+        "WRITE_CALENDAR",
+        "READ_CONTACTS",
+        "WRITE_CONTACTS",
+        "POST_NOTIFICATIONS",
+        "BLUETOOTH_CONNECT",
+        "BLUETOOTH_SCAN",
+        "android.permission.health.READ_STEPS",
+        "android.permission.health.READ_HEART_RATE"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "llama.rn",
+        {
+          "enableEntitlements": true,
+          "forceCxx20": true,
+          "enableOpenCLAndHexagon": true
+        }
+      ],
+      "react-native-ble-plx",
+      "react-native-health-connect",
+      "./plugins/withThirdPartySqlite.js",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": false,
+            "minSdkVersion": 26,
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35
+          }
+        }
+      ]
+    ]
+  }
+}
