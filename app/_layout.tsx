@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import { ServicesProvider } from './ServicesContext';
-import { services } from '../services';
+import { services } from '../src/services';
 import { registerConfirmHandler } from './ConfirmBridge';
 
 export default function RootLayout() {

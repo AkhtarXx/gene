@@ -1,5 +1,5 @@
 import { createContext, useContext, type ReactNode } from 'react';
-import { services } from '../services';
+import { services } from '../src/services';
 
 const ServicesContext = createContext(services);
 

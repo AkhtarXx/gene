@@ -1,5 +1,5 @@
 import { initLlama, type LlamaContext, type InitParams } from 'llama.rn';
-import { ensureModel, type ModelSpec } from './modelDownloader';
+import { ensureModel, type ModelSpec } from '../llm/modelDownloader';
 
 /**
  * Dedicated on-device embedding model (nomic-embed-text-v1.5-GGUF, 768-dim).

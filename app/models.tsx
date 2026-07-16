@@ -1,9 +1,9 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useState } from 'react';
 import { useServices } from './ServicesContext';
-import { CHAT_MODELS, EMBEDDING_MODEL } from '../models/catalog';
-import { downloadModelWithProgress, type ModelSpec } from '../services/llm/modelDownloader';
-import { deviceRamGB, recommendedChatModel } from '../models/tier';
+import { CHAT_MODELS, EMBEDDING_MODEL } from '../src/models/catalog';
+import { downloadModelWithProgress, type ModelSpec } from '../src/services/llm/modelDownloader';
+import { deviceRamGB, recommendedChatModel } from '../src/models/tier';
 
 function ModelRow({ spec, recommended }: { spec: ModelSpec; recommended?: boolean }) {
   const { engine, embeddings } = useServices();
