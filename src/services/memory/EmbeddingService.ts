@@ -18,6 +18,7 @@ export class EmbeddingService {
       embedding: true,
       n_ctx: 8192,
       n_gpu_layers: -1,
+      n_threads: 6,
       use_mlock: true,
       ...extra,
     });

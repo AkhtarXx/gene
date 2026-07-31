@@ -1,6 +1,10 @@
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { useServices } from './ServicesContext';
+import { useServices } from '../src/ui/ServicesContext';
+import { Background3D } from '../src/ui/Background3D';
+import { GlassCard } from '../src/ui/GlassCard';
+import { AnimatedPress } from '../src/ui/AnimatedPress';
+import { color, radius, space, type } from '../src/ui/theme';
 import { CHAT_MODELS, EMBEDDING_MODEL } from '../src/models/catalog';
 import { downloadModelWithProgress, type ModelSpec } from '../src/services/llm/modelDownloader';
 import { deviceRamGB, recommendedChatModel } from '../src/models/tier';
@@ -19,7 +23,6 @@ function ModelRow({ spec, recommended }: { spec: ModelSpec; recommended?: boolea
       setStatus('error');
     }
   }
-
   async function onLoad() {
     setStatus('loading');
     try {
@@ -29,7 +32,6 @@ function ModelRow({ spec, recommended }: { spec: ModelSpec; recommended?: boolea
       setStatus('error');
     }
   }
-
   async function onLoadEmbedding() {
     setStatus('loading');
     try {
@@ -42,25 +44,58 @@ function ModelRow({ spec, recommended }: { spec: ModelSpec; recommended?: boolea
 
   const pct = progress < 0 ? '…' : `${Math.round(progress * 100)}%`;
   return (
-    <View style={{ padding: 12, borderBottomWidth: 1, borderColor: '#eee' }}>
-      <Text style={{ fontWeight: '600' }}>{spec.label}{recommended ? '  ✦ recommended' : ''}</Text>
-      <Text style={{ color: '#888' }}>{(spec.sizeBytes / 1e9).toFixed(2)} GB</Text>
-      <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
-        <Pressable onPress={onDownload} disabled={status === 'downloading'}>
-          <Text style={{ color: '#0a7' }}>{status === 'downloading' ? `Downloading ${pct}` : 'Download'}</Text>
-        </Pressable>
-        <Pressable onPress={onLoad} disabled={spec.isEmbedding}>
-          <Text style={{ color: spec.isEmbedding ? '#999' : '#0a7' }}>Load LLM</Text>
-        </Pressable>
+    <GlassCard style={{ marginBottom: space.md }}>
+      <Text style={[type.title, { color: color.text }]}>
+        {spec.label}
+        {recommended ? '  ✦ recommended' : ''}
+      </Text>
+      <Text style={[type.body, { color: color.textDim, marginTop: space.xs }]}>
+        {(spec.sizeBytes / 1e9).toFixed(2)} GB
+      </Text>
+
+      {status === 'downloading' && (
+        <View
+          style={{
+            height: 6,
+            borderRadius: radius.pill,
+            backgroundColor: color.surface2,
+            marginTop: space.md,
+            overflow: 'hidden',
+          }}
+        >
+          <View
+            style={{
+              height: '100%',
+              width: pct as unknown as number,
+              backgroundColor: color.accent,
+              borderRadius: radius.pill,
+            }}
+          />
+        </View>
+      )}
+
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.md }}>
+        <AnimatedPress onPress={onDownload} disabled={status === 'downloading'}>
+          <Text style={{ color: color.accent, paddingHorizontal: space.md, paddingVertical: space.xs }}>
+            {status === 'downloading' ? `Downloading ${pct}` : 'Download'}
+          </Text>
+        </AnimatedPress>
+        <AnimatedPress onPress={onLoad} disabled={spec.isEmbedding}>
+          <Text style={{ color: spec.isEmbedding ? color.textDim : color.accent, paddingHorizontal: space.md, paddingVertical: space.xs }}>
+            Load LLM
+          </Text>
+        </AnimatedPress>
         {spec.isEmbedding && (
-          <Pressable onPress={onLoadEmbedding}>
-            <Text style={{ color: '#0a7' }}>Load Embedding</Text>
-          </Pressable>
+          <AnimatedPress onPress={onLoadEmbedding}>
+            <Text style={{ color: color.accent, paddingHorizontal: space.md, paddingVertical: space.xs }}>
+              Load Embedding
+            </Text>
+          </AnimatedPress>
         )}
-        {status === 'ready' && <Text style={{ color: '#080' }}>Ready</Text>}
-        {status === 'error' && <Text style={{ color: '#c00' }}>Error</Text>}
+        {status === 'ready' && <Text style={{ color: color.success, paddingHorizontal: space.md }}>Ready</Text>}
+        {status === 'error' && <Text style={{ color: color.danger, paddingHorizontal: space.md }}>Error</Text>}
       </View>
-    </View>
+    </GlassCard>
   );
 }
 
@@ -68,18 +103,26 @@ export default function ModelsScreen() {
   const { engine } = useServices();
   const recommendedId = recommendedChatModel().id;
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <Text style={{ padding: 12, fontWeight: '700' }}>
-        Chat models (download, then Load) — device RAM: {deviceRamGB()} GB
-      </Text>
-      {CHAT_MODELS.map((m) => (
-        <ModelRow key={m.id} spec={m} recommended={m.id === recommendedId} />
-      ))}
-      <Text style={{ padding: 12, fontWeight: '700' }}>Embedding model (for RAG memory)</Text>
-      <ModelRow spec={EMBEDDING_MODEL} />
-      <Text style={{ padding: 12, color: '#888' }}>
-        Loaded LLM: {engine.loadedModelId ?? 'none'}
-      </Text>
-    </ScrollView>
+    <View style={{ flex: 1, backgroundColor: color.bg }}>
+      <Background3D />
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: space.lg }}>
+        <Text style={[type.display, { color: color.text, marginBottom: space.md }]}>
+          Models
+        </Text>
+        <Text style={[type.body, { color: color.textDim, marginBottom: space.lg }]}>
+          Chat models — device RAM: {deviceRamGB()} GB
+        </Text>
+        {CHAT_MODELS.map((m) => (
+          <ModelRow key={m.id} spec={m} recommended={m.id === recommendedId} />
+        ))}
+        <Text style={[type.title, { color: color.text, marginVertical: space.md }]}>
+          Embedding model (RAG memory)
+        </Text>
+        <ModelRow spec={EMBEDDING_MODEL} />
+        <Text style={[type.mono, { color: color.textDim, marginTop: space.md }]}>
+          Loaded LLM: {engine.loadedModelId ?? 'none'}
+        </Text>
+      </ScrollView>
+    </View>
   );
 }

@@ -1,5 +1,5 @@
 import { Alert } from 'react-native';
-import { setConfirmHandler, type ConfirmRequest } from '../src/ui/confirmBridge';
+import { setConfirmHandler, type ConfirmRequest } from './confirmBridge';
 
 /**
  * Registers the real confirmation prompt for the Security Gate. Mounted once

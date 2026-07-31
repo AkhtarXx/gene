@@ -21,23 +21,34 @@ export class LLMEngineService {
   private loadedSpec: ModelSpec | null = null;
   /** Single-flight guard: only one completion may run at a time. */
   private inflight: Promise<unknown> | null = null;
+  /** Single-flight guard for model loading (prevents double initLlama). */
+  private loadInflight: Promise<void> | null = null;
 
   async loadModel(spec: ModelSpec, extra?: Partial<InitParams>): Promise<void> {
     if (this.context && this.loadedSpec?.id === spec.id) return;
+    if (this.loadInflight) return this.loadInflight;
 
-    const path = await ensureModel(spec);
-    if (this.context) await this.context.close();
+    this.loadInflight = (async () => {
+      const path = await ensureModel(spec);
+      if (this.context) await this.context.close();
 
-    this.context = await initLlama({
-      model: path,
-      n_ctx: 4096,
-      n_gpu_layers: -1,
-      n_batch: 512,
-      use_mlock: true,
-      embedding: true,
-      ...extra,
-    });
-    this.loadedSpec = spec;
+      this.context = await initLlama({
+        model: path,
+        n_ctx: 4096,
+        n_gpu_layers: 0,
+        n_threads: 6,
+        n_batch: 512,
+        use_mlock: false,
+        embedding: true,
+        ...extra,
+      });
+      this.loadedSpec = spec;
+    })();
+    try {
+      await this.loadInflight;
+    } finally {
+      this.loadInflight = null;
+    }
   }
 
   isLoaded(): boolean {

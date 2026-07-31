@@ -1,4 +1,4 @@
-import { Device } from 'expo-device';
+import * as Device from 'expo-device';
 import { CHAT_MODELS, EMBEDDING_MODEL, type ModelSpec } from './catalog';
 
 const GB = 1024 ** 3;

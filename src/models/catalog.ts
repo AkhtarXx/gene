@@ -1,5 +1,7 @@
 import type { ModelSpec } from '../services/llm/modelDownloader';
 
+export type { ModelSpec };
+
 /**
  * Pinned on-device model catalog (verified mid-2026).
  *

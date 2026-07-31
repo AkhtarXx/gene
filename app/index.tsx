@@ -1,7 +1,17 @@
-import { FlatList, TextInput, Pressable, Text, View } from 'react-native';
+import { FlatList, TextInput, Text, View } from 'react-native';
 import { useState } from 'react';
 import { Link } from 'expo-router';
-import { useServices } from './ServicesContext';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
+import { useServices } from '../src/ui/ServicesContext';
+import { Background3D } from '../src/ui/Background3D';
+import { GlassCard } from '../src/ui/GlassCard';
+import { AnimatedPress } from '../src/ui/AnimatedPress';
+import { color, radius, space, spring, type } from '../src/ui/theme';
 
 type Msg = { id: string; role: 'user' | 'assistant'; text: string };
 
@@ -14,6 +24,11 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [running, setRunning] = useState(false);
+
+  const sendScale = useSharedValue(1);
+  const sendStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: sendScale.value }],
+  }));
 
   async function send() {
     const text = input.trim();
@@ -52,43 +67,77 @@ export default function ChatScreen() {
   }
 
   return (
-    <View style={{ flex: 1, padding: 12 }}>
-      <FlatList
-        style={{ flex: 1 }}
-        data={messages}
-        keyExtractor={(m) => m.id}
-        extraData={messages}
-        renderItem={({ item }) => (
-          <Text
-            style={{
-              textAlign: item.role === 'user' ? 'right' : 'left',
-              marginVertical: 4,
-              color: item.role === 'user' ? '#0a7' : '#222',
-            }}
-          >
-            {item.text}
-          </Text>
-        )}
-      />
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        <TextInput
-          style={{ flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 8 }}
-          value={input}
-          onChangeText={setInput}
-          placeholder="Message…"
-          editable={!running}
+    <View style={{ flex: 1, backgroundColor: color.bg }}>
+      <Background3D />
+      <View style={{ flex: 1, padding: space.lg }}>
+        <FlatList
+          style={{ flex: 1 }}
+          data={messages}
+          keyExtractor={(m) => m.id}
+          extraData={messages}
+          contentContainerStyle={{ paddingVertical: space.md, gap: space.md }}
+          renderItem={({ item }) => (
+            <GlassCard
+              style={{
+                alignSelf: item.role === 'user' ? 'flex-end' : 'flex-start',
+                maxWidth: '82%',
+                backgroundColor: item.role === 'user' ? color.userBubble : color.aiBubble,
+              }}
+            >
+              <Text style={[type.body, { color: color.text }]}>{item.text}</Text>
+            </GlassCard>
+          )}
         />
-        <Pressable onPress={send} disabled={running}>
-          <Text style={{ padding: 12, color: running ? '#999' : '#0a7' }}>Send</Text>
-        </Pressable>
-        {running && (
-          <Pressable onPress={() => engine.stop()}>
-            <Text style={{ padding: 12, color: '#c00' }}>Cancel</Text>
-          </Pressable>
-        )}
-        <Link href="/models">
-          <Text style={{ padding: 12, color: '#0a7' }}>Models</Text>
-        </Link>
+
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: space.sm,
+            padding: space.sm,
+            backgroundColor: color.surface0,
+            borderRadius: radius.pill,
+            borderWidth: 1,
+            borderColor: color.border,
+          }}
+        >
+          <TextInput
+            style={{
+              flex: 1,
+              color: color.text,
+              paddingHorizontal: space.md,
+              paddingVertical: space.sm,
+              fontSize: 15,
+            }}
+            value={input}
+            onChangeText={setInput}
+            placeholder="Message…"
+            placeholderTextColor={color.textDim}
+            editable={!running}
+          />
+          <AnimatedPress onPress={send} disabled={running}>
+            <View
+              style={{
+                paddingHorizontal: space.lg,
+                paddingVertical: space.sm,
+                backgroundColor: color.accent,
+                borderRadius: radius.pill,
+              }}
+            >
+              <Text style={{ color: '#06251F', fontWeight: '700' }}>
+                {running ? '…' : 'Send'}
+              </Text>
+            </View>
+          </AnimatedPress>
+          {running && (
+            <AnimatedPress onPress={() => engine.stop()}>
+              <Text style={{ color: color.danger, paddingHorizontal: space.md }}>Cancel</Text>
+            </AnimatedPress>
+          )}
+          <Link href="/models">
+            <Text style={{ color: color.accent, paddingHorizontal: space.md }}>Models</Text>
+          </Link>
+        </View>
       </View>
     </View>
   );
