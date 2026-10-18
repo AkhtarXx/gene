@@ -24,7 +24,7 @@
     "@expo/vector-icons": "^14.1.0",
     "@fugood/react-native-audio-pcm-stream": "^1.1.4",
     "@op-engineering/op-sqlite": "^17.1.2",
-    "@preeternal/react-native-file-hash": "^1.0.0",
+    "@preeternal/react-native-file-hash": "^3.0.1",
     "expo": "~53.0.0",
     "expo-asset": "~11.1.7",
     "expo-build-properties": "~0.14.8",
