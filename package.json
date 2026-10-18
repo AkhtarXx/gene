@@ -42,7 +42,7 @@
     "expo-sharing": "~13.1.5",
     "expo-status-bar": "~2.2.3",
     "expo-system-ui": "~5.0.11",
-    "llama.rn": "^0.12.0",
+    "llama.rn": "^0.12.9",
     "react": "19.0.0",
     "react-native": "0.79.6",
     "react-native-ble-plx": "3.5.1",
