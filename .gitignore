@@ -1,1 +1,11 @@
 node_modules
+.expo/
+dist/
+coverage/
+.local-qa/
+*.keystore
+!android/app/debug.keystore
+keystore.properties
+credentials.json
+.env
+.env.*

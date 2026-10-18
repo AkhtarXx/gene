@@ -1,0 +1,29 @@
+name: Feature request
+description: Propose a new capability or improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user need does this address? Keep it concrete.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How should it work? Include UX details where relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Privacy & safety impact
+      description: |
+        Does this introduce new permissions, new data flows, or new side effects?
+        Anything that leaves the device is out of scope by design.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

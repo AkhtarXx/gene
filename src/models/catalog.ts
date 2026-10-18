@@ -47,3 +47,15 @@ export const EMBEDDING_MODEL: ModelSpec = {
   paramsB: 0.5,
   isEmbedding: true,
 };
+
+/** Whisper tiny (English) for on-device voice input. whisper.cpp format. */
+export const WHISPER_MODEL: ModelSpec = {
+  id: 'whisper-tiny-en',
+  label: 'Whisper tiny.en (78 MB)',
+  repo: 'ggerganov/whisper.cpp',
+  filename: 'ggml-tiny.en.bin',
+  url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en.bin',
+  sha256: '921e4cf8686fdd993dcd081a5da5b6c365bfde1162e72b08d75ac75289920b1f',
+  sizeBytes: 77_704_715,
+  paramsB: 0.5,
+};

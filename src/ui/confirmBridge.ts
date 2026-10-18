@@ -1,4 +1,4 @@
-export type ConfirmRequest = { title: string; message: string; details?: string };
+export type ConfirmRequest = { title: string; message: string; details?: string; signal?: AbortSignal };
 type ConfirmFn = (r: ConfirmRequest) => Promise<boolean>;
 
 let handler: ConfirmFn | null = null;
@@ -10,5 +10,5 @@ export function setConfirmHandler(fn: ConfirmFn | null): void {
 
 /** Resolves to false if no UI handler is registered (safe default = deny). */
 export function requestConfirm(r: ConfirmRequest): Promise<boolean> {
-  return handler ? handler(r) : Promise.resolve(false);
+  return handler && !r.signal?.aborted ? handler(r) : Promise.resolve(false);
 }

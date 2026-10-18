@@ -1,10 +1,7 @@
 import { Platform } from 'react-native';
-import {
-  initialize,
-  requestPermission,
-  readRecords,
-} from 'react-native-health-connect';
+import { initialize, requestPermission, readRecords } from 'react-native-health-connect';
 import type { ToolDefinition } from '../../types/tool';
+import { checkAbort } from '../async';
 
 /**
  * Health read tool (Android, Health Connect). Reads aggregate steps and recent
@@ -28,12 +25,11 @@ export const healthRead: ToolDefinition = {
       required: false,
     },
   ],
-  execute: async (args) => {
+  execute: async (args, signal) => {
     if (Platform.OS !== 'android') {
       return JSON.stringify({
         ok: false,
-        error:
-          'iOS HealthKit not configured in this build. Android Health Connect only.',
+        error: 'iOS HealthKit not configured in this build. Android Health Connect only.',
       });
     }
     const hours = Math.min(Math.max(Number(args.hours ?? 24), 1), 168);
@@ -42,10 +38,12 @@ export const healthRead: ToolDefinition = {
 
     try {
       await initialize();
+      checkAbort(signal);
       await requestPermission([
         { accessType: 'read', recordType: 'Steps' },
         { accessType: 'read', recordType: 'HeartRate' },
       ]);
+      checkAbort(signal);
 
       const stepsRes = await readRecords('Steps', {
         timeRangeFilter: {
@@ -54,10 +52,7 @@ export const healthRead: ToolDefinition = {
           endTime: end.toISOString(),
         },
       });
-      const stepTotal = stepsRes.records.reduce(
-        (sum, r) => sum + ((r as { count?: number }).count ?? 0),
-        0,
-      );
+      const stepTotal = stepsRes.records.reduce((sum, r) => sum + ((r as { count?: number }).count ?? 0), 0);
 
       const hrRes = await readRecords('HeartRate', {
         timeRangeFilter: {
@@ -69,9 +64,7 @@ export const healthRead: ToolDefinition = {
       const beats = hrRes.records
         .map((r) => (r as { samples?: { beatsPerMinute?: number }[] }).samples?.[0]?.beatsPerMinute ?? 0)
         .filter(Boolean);
-      const hrAvg = beats.length
-        ? Math.round(beats.reduce((a, b) => a + b, 0) / beats.length)
-        : null;
+      const hrAvg = beats.length ? Math.round(beats.reduce((a, b) => a + b, 0) / beats.length) : null;
 
       return JSON.stringify({
         ok: true,

@@ -1,0 +1,41 @@
+name: Bug report
+description: Something is broken or behaves unexpectedly
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Privacy and safety issues should go through
+        [SECURITY.md](https://github.com/AkhtarXx/gene/blob/main/SECURITY.md) instead.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: e.g. 0.1.0 (from Settings → About)
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device + OS
+      placeholder: e.g. Pixel 8, Android 15 / iPhone 15, iOS 19
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model loaded
+      placeholder: e.g. Qwen2.5 1.5B (Q4_K_M) + memory on
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Steps to reproduce and expected vs actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / context
+      description: Any error text shown in chat, or Activity Log entries around the failure.
+      render: text

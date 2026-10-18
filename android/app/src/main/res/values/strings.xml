@@ -1,4 +1,5 @@
 <resources>
-  <string name="app_name">OpenClaw Mobile</string>
+  <string name="phone_control_description">Personal APK: reads visible app content and performs individually approved taps, typing and scrolling. Enable a timed session inside Gene. Stop at any time using the floating STOP button.</string>
+  <string name="app_name">Gene Personal Assistant</string>
   <string name="expo_system_ui_user_interface_style" translatable="false">automatic</string>
 </resources>

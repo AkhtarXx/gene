@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import * as IntentLauncher from 'expo-intent-launcher';
 import * as Linking from 'expo-linking';
+import { checkAbort } from '../async';
 import type { ToolDefinition } from '../../types/tool';
 
 /**
@@ -21,24 +22,25 @@ export const launchApp: ToolDefinition = {
     {
       name: 'target',
       type: 'string',
-      description:
-        'Android: package id (e.g. "com.google.android.gm"). iOS: URL scheme (e.g. "maps://").',
+      description: 'Android: package id (e.g. "com.google.android.gm"). iOS: URL scheme (e.g. "maps://").',
       required: true,
     },
   ],
-  execute: async (args) => {
+  execute: async (args, signal) => {
     const target = String(args.target ?? '').trim();
     if (!target) {
       return JSON.stringify({ ok: false, error: 'target is required' });
     }
     try {
       if (Platform.OS === 'android') {
-        IntentLauncher.openApplication(target);
+        checkAbort(signal);
+        await IntentLauncher.openApplication(target);
       } else {
         const ok = await Linking.canOpenURL(target);
         if (!ok) {
           return JSON.stringify({ ok: false, error: `cannot open ${target} on iOS` });
         }
+        checkAbort(signal);
         await Linking.openURL(target);
       }
       return JSON.stringify({ ok: true, launched: target, platform: Platform.OS });

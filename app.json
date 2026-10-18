@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "OpenClaw Mobile",
-    "slug": "openclaw-mobile",
+    "name": "Gene Personal Assistant",
+    "slug": "gene-personal-assistant",
     "version": "0.1.0",
     "orientation": "portrait",
-    "scheme": "openclaw",
+    "scheme": ["gene", "openclaw"],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -17,6 +17,7 @@
         "NSHealthShareUsageDescription": "Used by the agent to read health data you request.",
         "NSHealthUpdateUsageDescription": "Used by the agent to write health data you request.",
         "NSBluetoothAlwaysUsageDescription": "Used by the agent for Bluetooth scans you request.",
+        "NSMicrophoneUsageDescription": "Used only for on-device voice transcription. Audio never leaves your device.",
         "LSApplicationQueriesSchemes": ["maps", "tel", "mailto"]
       }
     },
@@ -31,6 +32,8 @@
         "POST_NOTIFICATIONS",
         "BLUETOOTH_CONNECT",
         "BLUETOOTH_SCAN",
+        "RECORD_AUDIO",
+        "com.android.alarm.permission.SET_ALARM",
         "android.permission.health.READ_STEPS",
         "android.permission.health.READ_HEART_RATE"
       ]
@@ -48,6 +51,7 @@
       "react-native-ble-plx",
       "react-native-health-connect",
       "./plugins/withThirdPartySqlite.js",
+      "./plugins/withPhoneControl.js",
       [
         "expo-build-properties",
         {

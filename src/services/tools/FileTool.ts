@@ -1,19 +1,24 @@
 import * as FileSystem from 'expo-file-system';
+import { checkAbort } from '../async';
 import type { ToolDefinition } from '../../types/tool';
 
 const SANDBOX = FileSystem.documentDirectory!;
 const MAX_WRITE_BYTES = 1_000_000;
+// Managed by modelDownloader with pinned-hash verification; the agent must not
+// read or overwrite raw model files through the generic file tools.
+const BLOCKED_ROOTS = ['models'];
 
 /**
  * Only allow paths inside the app sandbox. Normalizes `..`/`.` segments so a
  * traversals like "../../etc/passwd" cannot escape the sandbox (startsWith
  * alone is NOT sufficient because it does not canonicalize parent dirs).
  */
-function safePath(path: string): string {
+export function safePath(path: string): string {
   const clean = String(path)
     .split('/')
     .filter((p) => p !== '..' && p !== '.')
     .join('/');
+  if (BLOCKED_ROOTS.includes(clean.split('/')[0])) throw new Error('path_not_allowed');
   const full = SANDBOX + clean;
   if (!full.startsWith(SANDBOX)) throw new Error('path_outside_sandbox');
   return full;
@@ -28,7 +33,12 @@ export const fileRead: ToolDefinition = {
   description: 'Reads a UTF-8 text file from the app sandbox (relative path). Returns the file content.',
   risk: 'read',
   parameters: [
-    { name: 'path', type: 'string', description: 'Relative path inside the app sandbox, e.g. "notes/memo.txt".', required: true },
+    {
+      name: 'path',
+      type: 'string',
+      description: 'Relative path inside the app sandbox, e.g. "notes/memo.txt".',
+      required: true,
+    },
   ],
   execute: async (args) => {
     try {
@@ -51,11 +61,17 @@ export const fileWrite: ToolDefinition = {
     { name: 'path', type: 'string', description: 'Relative path inside the app sandbox.', required: true },
     { name: 'content', type: 'string', description: 'Text content to write (max ~1MB).', required: true },
   ],
-  execute: async (args) => {
+  execute: async (args, signal) => {
     try {
       const content = String(args.content);
       if (content.length > MAX_WRITE_BYTES) return JSON.stringify({ ok: false, error: 'content_too_large' });
       const full = safePath(String(args.path));
+      // writeAsStringAsync does not create missing parent directories.
+      const parent = full.slice(0, full.lastIndexOf('/'));
+      if (parent && parent !== SANDBOX) {
+        await FileSystem.makeDirectoryAsync(parent, { intermediates: true });
+      }
+      checkAbort(signal);
       await FileSystem.writeAsStringAsync(full, content, { encoding: FileSystem.EncodingType.UTF8 });
       return JSON.stringify({ ok: true, path: String(args.path) });
     } catch (e) {

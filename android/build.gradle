@@ -35,3 +35,12 @@ allprojects {
 
 apply plugin: "expo-root-project"
 apply plugin: "com.facebook.react.rootproject"
+
+// Native libraries without an explicit NDK otherwise use AGP's own default
+// (27.0), which differs from React Native's 27.1 toolchain and triggers another
+// SDK download. Establish the project toolchain as their default as well.
+subprojects { nativeProject ->
+  nativeProject.plugins.withId('com.android.library') {
+    nativeProject.android.ndkVersion = rootProject.ext.ndkVersion
+  }
+}

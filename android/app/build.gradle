@@ -81,6 +81,14 @@ def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInRelea
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+// Local release credentials stay outside the repository. EAS may inject its
+// managed signing config later; never fall back to the public debug key.
+def releaseStorePath = System.getenv('OPENCLAW_KEYSTORE_PATH')
+def releaseStorePassword = System.getenv('OPENCLAW_KEYSTORE_PASSWORD')
+def releaseKeyAlias = System.getenv('OPENCLAW_KEY_ALIAS')
+def releaseKeyPassword = System.getenv('OPENCLAW_KEY_PASSWORD')
+def hasReleaseCredentials = [releaseStorePath, releaseStorePassword, releaseKeyAlias, releaseKeyPassword].every { it }
+
 android {
     ndkVersion rootProject.ext.ndkVersion
 
@@ -102,15 +110,21 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        if (hasReleaseCredentials) {
+            release {
+                storeFile file(releaseStorePath)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig hasReleaseCredentials ? signingConfigs.release : null
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -124,6 +138,20 @@ android {
     }
     androidResources {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
+    }
+}
+
+gradle.taskGraph.whenReady { graph ->
+    def buildsRelease = graph.allTasks.any { task ->
+        task.project == project && task.name ==~ /(?i)(assemble|bundle|package|install|validateSigning).*release.*/
+    }
+    if (buildsRelease) {
+        def signing = android.buildTypes.release.signingConfig
+        if (signing == null || signing.storeFile == null ||
+            signing.storeFile.canonicalFile == file('debug.keystore').canonicalFile ||
+            signing.keyAlias == 'androiddebugkey') {
+            throw new GradleException('Release signing requires private credentials. Configure EAS managed credentials or OPENCLAW_KEYSTORE_PATH, OPENCLAW_KEYSTORE_PASSWORD, OPENCLAW_KEY_ALIAS and OPENCLAW_KEY_PASSWORD. Debug signing is forbidden for release builds.')
+        }
     }
 }
 

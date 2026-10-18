@@ -1,21 +1,35 @@
 {
-  "name": "openclaw-mobile",
+  "name": "gene-personal-assistant",
   "version": "0.1.0",
   "private": true,
+  "description": "A personal mobile assistant with on-device inference, local memory, voice input and user-approved Android actions.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AkhtarXx/gene.git"
+  },
   "main": "expo-router/entry",
   "scripts": {
+    "postinstall": "node scripts/patch-llama-abi.cjs",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.cjs",
+    "lint": "eslint .",
+    "format": "prettier --write ."
   },
   "dependencies": {
+    "@expo/vector-icons": "^14.1.0",
+    "@fugood/react-native-audio-pcm-stream": "^1.1.4",
     "@op-engineering/op-sqlite": "^17.1.2",
     "@preeternal/react-native-file-hash": "^1.0.0",
     "expo": "~53.0.0",
     "expo-asset": "~11.1.7",
     "expo-build-properties": "~0.14.8",
     "expo-calendar": "~14.1.4",
+    "expo-clipboard": "~7.1.5",
     "expo-constants": "~17.1.8",
     "expo-contacts": "~14.2.6",
     "expo-device": "~7.1.4",
@@ -25,6 +39,7 @@
     "expo-location": "~18.1.6",
     "expo-notifications": "~0.31.5",
     "expo-router": "~5.1.11",
+    "expo-sharing": "~13.1.5",
     "expo-status-bar": "~2.2.3",
     "expo-system-ui": "~5.0.11",
     "llama.rn": "^0.12.0",
@@ -32,10 +47,12 @@
     "react-native": "0.79.6",
     "react-native-ble-plx": "3.5.1",
     "react-native-health-connect": "3.5.3",
+    "react-native-marked": "^8.3.2",
     "react-native-reanimated": "^3.19.5",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
-    "zod": "^3.23.0"
+    "react-native-svg": "15.11.2",
+    "whisper.rn": "^0.7.4"
   },
   "op-sqlite": {
     "sqliteVec": true
@@ -46,6 +63,14 @@
   },
   "devDependencies": {
     "@types/react": "~19.0.10",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~9.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.7",
+    "prettier": "^3.9.10",
     "typescript": "~5.8.3"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
